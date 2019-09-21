@@ -10,7 +10,7 @@ console.log(pions);
 function intelligence_commence() {
     //Jouer dans un coin
     playPion(0);
-    //SI le joueur joue au millieu
+    //Si le joueur joue au millieu
     if(pions[4] == 'X' && pions[8] == '') {
         playPion(8);
         attendreJoueurFinitJouer();
@@ -45,6 +45,15 @@ function intelligence_commence() {
         if(pions[1] == 'X') {
             playPion(6);
             attendreJoueurFinitJouer();
+            if(pions[3] == 'X') {
+                playPion(8);
+                attendreJoueurFinitJouer();
+                if(pions[7] == 'X') {
+                    playPion(4);
+                } else if(pions[4] == 'X') {
+                    playPion(7);
+                }
+            }
         }
         if(pions[3] == 'X') {
             playPion(2);
@@ -71,7 +80,7 @@ function playPion(position){
 
 //Attend que le joueur est fini de jouer
 function attendreJoueurFinitJouer() {
-
+    //Todo
 }
 
 console.log(coupPossible(pions));
