@@ -84,14 +84,20 @@ while 1:
     if len(grid)<9:
         cnx.close()
         continue
+    fail=False
     for x in grid.decode():
         if not x in "-OX":
             cnx.close()
-            continue
+            fail=True
+            break
+    if fail:
+        continue
     grid=list(grid.decode())
-    coupcheck_win(grid,"O","X")[0]
+    coup=check_win(grid,"O","X")[0]
     if coup==0:
         coup=the_move(grid,minimax(grid,"O","O","X"))
         coup+=check_win(grid,"O","X")[0]*9
     else:
         coup+=26
+    cnx.send(bytes([coup]))
+    cnx.close()
