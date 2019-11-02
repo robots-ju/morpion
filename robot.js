@@ -1,86 +1,140 @@
-// Robots-JU - Groupe-avancé - Morpion
-// Programme de l'intélligence du robot
-// Auteur: Morgan Chételat
-// Source : https://fr.m.wikihow.com/gagner-au-morpion#Gagner-ou-faire-un-match-nul-en-jouant-en-premier
+#!/usr/bin/env node
+
+//demarrage//
+
+var ev3dev = require('ev3dev-lang');
+console.log("Ready !");
 
 
-let pions = ['.', 'X', '.', 'O', '.', '.', '.', '.', '.'];
-console.log(pions);
+//Création des moteurs//
 
-function intelligence_commence() {
-    //Jouer dans un coin
-    playPion(0);
-    //Si le joueur joue au millieu
-    if(pions[4] == 'X' && pions[8] == '') {
-        playPion(8);
-        attendreJoueurFinitJouer();
+var mRailGauche = new ev3dev.MediumMotor(ev3dev.OUTPUT_A);
+var mRailDroit = new ev3dev.MediumMotor(ev3dev.OUTPUT_B);
+var mRailPince = new ev3dev.MediumMotor(ev3dev.OUTPUT_C);
+var mPince = new ev3dev.MediumMotor(ev3dev.OUTPUT_D);
 
-        //Si le joueur joue en bas à gauche alors mettre un pion en haut à droite
-        if(pions[6] == 'X') {
-            playPion(2);
-            attendreJoueurFinitJouer();
+//Création des capteurs//
 
-            if(pions[1] == '') {
-                playPion(1);
-            } else if(pions[5] == '') {
-                playPion(5);
-            }
-        }
+//var capteurCouleurPieces = new ev3dev.ColorSensor(ev3dev.INPUT_1);
+//var capteurTouchStopPlayer = new ev3dev.TouchSensor(ev3dev.INPUT_2);
 
-        //Si le joueur joue en haut à droite alors mettre un pion en bas à gauche
-        if(pions[2] == 'X') {
-            playPion(6);
-            attendreJoueurFinitJouer();
+//Blocage des moteurs//
 
-            if(pions[3] == '') {
-                playPion(3);
-            } else if(pions[7] == '') {
-                playPion(7);
-            }
-        }
+mRailGauche.setStopAction('brake');
+mRailDroit.setStopAction('brake');
+mRailPince.setStopAction('brake');
+mPince.setStopAction('brake');
+mRailGauche.reset();
+mRailDroit.reset();
+mRailPince.reset();
+mPince.reset();
+
+//Variables globales
+let distanceBase = 135;
+let distanceLigne = 210;
+let distanceColonne = 0;
+let distanceFinaleX = 0;
+let distanceFinaleY = 0;
+let piecesArray = ['', '', '', '', '', '', '', '', ''];
+
+function runTo(position, speed) {
+
+    //transformer position x en position moteur.
+    switch (position[0]) {
+        case 0:
+            distanceFinaleX = distanceBase + 2 * distanceLigne;
+            break;
+        case 1:
+            distanceFinaleX = distanceBase + distanceLigne;
+        case 2:
+            distanceFinaleX = distanceBase;
     }
 
-     //Cas où le joueur ne pose pas le pion au millieu
-    if(pions[4] == '') {
-        if(pions[1] == 'X') {
-            playPion(6);
-            attendreJoueurFinitJouer();
-            if(pions[3] == 'X') {
-                playPion(8);
-                attendreJoueurFinitJouer();
-                if(pions[7] == 'X') {
-                    playPion(4);
-                } else if(pions[4] == 'X') {
-                    playPion(7);
-                }
+    mRailPince.runToPosition(distanceFinaleX, speedRailPince);
+    mRailPince.reset();
+
+    console.log(distanceFinaleX);
+
+    switch (position[1]) {
+        case 0:
+            distanceFinaleY = distanceBase;
+            break;
+        case 1:
+            distanceFinaleY = distanceBase + distanceColonne;
+        case 2:
+            distanceFinaleY = distanceBase + 2 * distanceColonne;
+    }
+    
+    mRailGauche(distanceFinaleY, speedRail);
+    mRailDroit(-distanceFinaleY, speedRail);  // (-) car ce moteur tourne dans l'autre sens
+    mRailGauche.reset();
+    mRailDroit.reset();
+
+    console.log(distanceFinaleY);
+
+    //mA.runToPosition(distanceFinaleY, speed);
+    //mB.runToPosition(-distanceFinaleY, speed);
+
+}
+
+
+
+
+function getPosition(caseNumber) {
+    switch (caseNumber) {
+        case 0: return [0, 0]
+        case 1: return [1, 0]
+        case 2: return [2, 0]
+        case 3: return [0, 1]
+        case 4: return [1, 1]
+        case 5: return [1, 2]
+        case 6: return [2, 0]
+        case 7: return [2, 1]
+        case 8: return [2, 2]
+        default: "erreur"
+    }
+}
+
+function returnHome() {
+    mRailGauche.runTo(-distanceFinaleY);
+    mRailDroit.runTo(distanceFinaleY);
+    mRailPince.runTo(-distanceFinaleX);
+    mRailGauche.reset();
+    mRailDroit.reset();
+    mRailPince.reset();
+}
+
+function putPiece() {
+    mPince.runTo(/*ouverture*/);
+    mPince.reset();
+    mPince.runTo(/*-ouverutre*/);
+}
+
+function getNewPiece () {
+    piecesArray.forEach((piece, index) => {
+        if(piece == '') {
+            runTo(getPosition(index), 500);
+            if(capteurCouleurPieces.getValue('black')) {
+                piecesArray[index] = 'X';
             }
         }
-        if(pions[3] == 'X') {
-            playPion(2);
-            attendreJoueurFinitJouer();
-        }
-        if(pions[5] == 'X') {
-            playPion(6);
-            attendreJoueurFinitJouer();
-        }
-        if(pions[7] == 'X') {
-            playPion(2);
-            attendreJoueurFinitJouer();
-        }
+    })
+}
+
+function waitingForPlayer() {
+    let playerIsPlaying = true;
+    while(playerIsPlaying) {
+        capteurTouchStopPlayer.isPressed ? playerIsPlaying = false : playerIsPlaying = true;
     }
+}
 
-    playPion(9);
+while (true) {
+    runTo(getPosition(5), 500);
+    putPiece();
+    returnHome();
+    //waitingForPlayer();
+    //getNewPiece();
 
 }
 
-//Evoie le position du pion à placer
-function playPion(position){
-    //Todo
-}
-
-//Attend que le joueur est fini de jouer
-function attendreJoueurFinitJouer() {
-    //Todo
-}
-
-console.log(coupPossible(pions));
+console.log('fini !!');

@@ -1,0 +1,8 @@
+{
+  "name": "morpion",
+  "version": "1.0.0",
+  "dependencies": {},
+  "devDependencies": {
+    "ev3dev-lang": "^1.0.0"
+  }
+}
