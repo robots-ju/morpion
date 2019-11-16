@@ -39,7 +39,7 @@ var distanceFinaleX = 0;
 var distanceFinaleY = 0;
 var piecesArray = ['', 'X', 'O', '', 'X', 'O', '', '', ''];
 
-
+//Va à le case demander
 function runTo(position, speedRail, withBase) {
 
 
@@ -101,6 +101,7 @@ function getPosition(caseNumber) {
     }
 }
 
+//Retourne à la base
 function returnHome() {
     return new Promise(function(resolve, reject){
         mRailGauche.runToPosition(0, 500);
@@ -112,6 +113,7 @@ function returnHome() {
     });
 }
 
+//Recherche la nouvelle pièce qui a été posé par le joueur
 function getNewPiece () {
     var nombreCaseAVerifier = 0;
     piecesArray.forEach(function(piece, index){
@@ -134,7 +136,7 @@ function getNewPiece () {
         returnHome();
     }, 7500 * nombreCaseAVerifier);
 }
-
+//Envoie d'une position test
 runTo(getPosition(4), 500, true);
 
 setTimeout(function(){
