@@ -1,7 +1,9 @@
 {
   "name": "morpion",
   "version": "1.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "promise-polyfill": "8.1.3"
+  },
   "devDependencies": {
     "ev3dev-lang": "^1.0.0"
   }
